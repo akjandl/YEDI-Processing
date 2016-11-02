@@ -1,5 +1,5 @@
 Attribute VB_Name = "xlsFinder"
-Sub test()
+Sub Test()
     Dim Fnames As Collection
     Dim toPrint As Variant
     

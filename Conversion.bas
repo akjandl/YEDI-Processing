@@ -19,7 +19,7 @@ Sub Convert_XLS_XLSX()
     End If
     
     ' Other vars
-    macro_name = ThisWorkbook.Name
+    macro_name = ThisWorkbook.name
     StrFile = Dir(Directory & "*.xls")
     
     ' Loop over xls files
