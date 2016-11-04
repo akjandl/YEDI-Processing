@@ -1,4 +1,23 @@
 Attribute VB_Name = "HelperFunctions"
+Function AddEntry(ByVal Dict As Dictionary, Key1 As String, Key2 As String, _
+    Val As Variant) As Dictionary
+
+    ' Add a key-value pair to dictionary within a dictionary
+    ' n.b., probably not very efficient as the entire dictionary is
+    ' passed back to calling scope
+
+    ' Create nested dict if not exists
+    If Not Dict.Exists(Key1) Then
+        Dict.Add Key1, New Dictionary
+    End If
+    
+    ' Add key-val to nested dict
+    Dict(Key1).Add Key2, Val
+    
+    Set AddEntry = Dict
+
+End Function
+
 Function CopyData(SrcRng As Range, DestRng As Range)
 
     ' `SrcRng` contains the data that will be copied over to `DestRng`
@@ -21,25 +40,25 @@ Function CopyWorksheet(SrcWb As Workbook, SrcWsNames As Variant, _
 
 End Function
 
-Function ExtractID(FileName As String) As String
+Function ExtractID(ByVal FileName As String) As String
 
     Dim Regex           As New VBScript_RegExp_55.RegExp
     Dim Matches         As Object
-    Dim ParticipantID   As String
+    Dim participantID   As String
     
     With Regex
         .IgnoreCase = True
         .Pattern = "^d?t?c?\s?([\d]{1,4}).*$"
         If .Test(FileName) Then
             Set Matches = .Execute(FileName)
-            ParticipantID = Matches(0).SubMatches(0)
+            participantID = Matches(0).SubMatches(0)
         Else
             MsgBox FileName & " does not contain a Participant ID"
         End If
     End With
     
     Set Regex = Nothing  ' free memory?
-    ExtractID = ParticipantID
+    ExtractID = participantID
     
 End Function
 

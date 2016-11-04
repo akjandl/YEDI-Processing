@@ -1,51 +1,79 @@
 Attribute VB_Name = "DriverModule"
-' Dictionary Usage Example
-' Requires: Microsoft Scripting Runtime
+' Requirements:
+'   - Microsoft Scripting Runtime
+'   - Microsoft VBScript Regular Expressions 5.5
 '
-' Dim TestDict            As New Dictionary
-' TestDict.Add "Stroop", 8
-' Debug.Print TestDict("Stroop")
-'
-' Idea: Store cell locations, other metadat for verification in Dictionary object
+' Worksheets to update:
+' number-letter, stroop, stop signal, category switch
 
 Sub Driver()
 
     Dim TemplateBook        As Workbook
     Dim CurrentBook         As Workbook
+    Dim ScoreBook           As Workbook
+    Dim dataDir             As String
+    Dim scoreFile           As String
+    Dim templateFile        As String
     Dim xlsFiles            As Collection
+    Dim templateSheets      As Collection
+    Dim Locations           As New Dictionary
     Dim curFile             As Variant
-    Dim StrFile             As String
-    Dim new_file            As String
-    Dim Directory           As String
-    Dim fso                 As New Scripting.FileSystemObject
-        
+    Dim participantID       As String
+    
+    ' Prompt user to select data root directory, template file, compiled scores
+    With Application.FileDialog(msoFileDialogFolderPicker)
+        .AllowMultiSelect = False
+        .Title = "Select data root directory"
+        .Show
+        dataDir = .SelectedItems(1)
+    End With
+    
+    With Application.FileDialog(msoFileDialogFilePicker)
+        .AllowMultiSelect = False
+        .Title = "Select template file with correct formulas"
+        .Show
+        templateFile = .SelectedItems(1)
+    End With
+    
+    With Application.FileDialog(msoFileDialogFilePicker)
+        .AllowMultiSelect = False
+        .Title = "Select the file with the combined compiled scores to verify against"
+        .Show
+        scoreFile = .SelectedItems(1)
+    End With
+    
     ' Performance considerations
     ' Application.ScreenUpdating = False
     Application.DisplayAlerts = False
-
-    ' Use User-input directory else macro workbook's current directory
-    Directory = ActiveSheet.Range("D3").Value & "\"
-    If Len(Directory) = 0 Then
-        Directory = ThisWorkbook.Path & "\"
-    End If
     
     ' Open the template files
-    Set TemplateBook = Workbooks.Open(Directory & "\" & "EF_scoringtemplate_CORRECTED.xls")
+    Set TemplateBook = Workbooks.Open(templateFile)
+    Set ScoreBook = Workbooks.Open(scoreFile)
+    
+    ' Rename template worksheets & store updated names
+    Set templateSheets = HelperFunctions.RenameSheets(TemplateBook, _
+        Array("Stroop", "", "", ""), _
+        "_updated")
     
     ' Generate list of xls files
-    Set xlsFiles = xlsFinder.xlsFinder(Directory & "EF R21")
+    Set xlsFiles = xlsFinder.xlsFinder(dataDir)
+    
+    ' Populate metadata dictionary with data locations
+    Set Locations = metaData.GenerateDictionary()
     
     ' Loop over files
+    For Each curFile In xlsFiles
     
         ' Get & store participant ID;
-        ' HelperFunctions.ExtractID(FileName)
+        participantID = HelperFunctions.ExtractID(curFile)
     
-        ' Rename template worksheets
-        ' HelperFunctions.RenameSheets(wb, WsNames, Suffix)
+        ' Open workbook
+        Set CurrentBook = Workbooks.Open(curFile)
         
         ' Copy new template worksheets;
-        ' HelperFunctions.CopyWorksheet(SrcWb, SrcWsNames, AfterWs)
+        Call HelperFunctions.CopyWorksheet(TemplateBook, templateSheets, "BRIEF-Parent")
         
+        ' TODO: copy data for each _updated sheet
         ' Populate data columns of new worksheets w/data from old;
         ' HelperFunctions.CopyData(SrcRng, DestRng)
         
@@ -63,7 +91,11 @@ Sub Driver()
             
         ' Save & close data file
         
-        ' Iterate loop
+    Next curFile
+    
+    ' Close Workbooks
+    TemplateBook.Close False
+    ScoreBook.Close True
 
     ' Turn alerts back on
     Application.DisplayAlerts = True
