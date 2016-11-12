@@ -29,14 +29,20 @@ Function CopyData(SrcRng As Range, DestRng As Range)
 End Function
 
 Function CopyWorksheet(SrcWb As Workbook, SrcWsNames As Variant, _
-    AfterWs As Worksheet)
+    BeforeWs As Worksheet)
 
     ' Takes the source workbook, source worksheet names (to copy)
     ' and a worksheet in the destination workbook after which
     ' to paste the source worksheet(s)
     ' Returns: Nothing
     
-    SrcWb.Worksheets(SrcWsNames).Copy After:=AfterWs
+    Dim sh As Variant
+    
+    For Each sh In SrcWsNames
+    
+        SrcWb.Worksheets(sh).Copy Before:=BeforeWs
+    
+    Next sh
 
 End Function
 
@@ -71,7 +77,7 @@ Function FindParticipant(ws As Worksheet, ID As String) As Range
     
 End Function
 
-Function RenameSheets(wb As Workbook, WsNames As Variant, Suffix As String) _
+Function RenameSheets(wb As Workbook, WsNames As Variant, suffix As String) _
     As Collection
     
     ' Takes a workbook object, an array of worksheet names to change,
@@ -84,7 +90,7 @@ Function RenameSheets(wb As Workbook, WsNames As Variant, Suffix As String) _
     
     For Each name In WsNames
     
-        newName = name & Suffix
+        newName = name & suffix
         newNames.Add (newName)
         wb.Worksheets(name).name = newName
     

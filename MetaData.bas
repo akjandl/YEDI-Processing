@@ -20,7 +20,7 @@ Function GenerateDictionary() As Dictionary
 
     ' Stroop
     Set metaData = HelperFunctions.AddEntry(metaData, "Stroop", "Start", "F2")
-    Set metaData = HelperFunctions.AddEntry(metaData, "Stroop", "End", "G340")
+    Set metaData = HelperFunctions.AddEntry(metaData, "Stroop", "End", "I340")
     Set metaData = HelperFunctions.AddEntry(metaData, "Stroop", "UserVal", Array("V2", "V4"))
     Set metaData = HelperFunctions.AddEntry(metaData, "Stroop", "CompiledVal", Array(11, 12))
      
@@ -29,10 +29,10 @@ Function GenerateDictionary() As Dictionary
     Set metaData = HelperFunctions.AddEntry(metaData, "Antisaccade", "CompiledVal", Array(13, 14))
     
     ' Stop Signal
-    Set metaData = HelperFunctions.AddEntry(metaData, "Stop Signal", "Start", "E3")
-    Set metaData = HelperFunctions.AddEntry(metaData, "Stop Signal", "End", "I307")
-    Set metaData = HelperFunctions.AddEntry(metaData, "Stop Signal", "UserVal", Array("Q2", "Q3"))
-    Set metaData = HelperFunctions.AddEntry(metaData, "Stop Signal", "CompiledVal", Array(15, 16))
+    Set metaData = HelperFunctions.AddEntry(metaData, "Stop Signal (SSRT Hannah)", "Start", "E3")
+    Set metaData = HelperFunctions.AddEntry(metaData, "Stop Signal (SSRT Hannah)", "End", "I307")
+    Set metaData = HelperFunctions.AddEntry(metaData, "Stop Signal (SSRT Hannah)", "UserVal", Array("Q2", "Q3"))
+    Set metaData = HelperFunctions.AddEntry(metaData, "Stop Signal (SSRT Hannah)", "CompiledVal", Array(15, 16))
     
     ' Category Switch
     Set metaData = HelperFunctions.AddEntry(metaData, "Category Switch", "Start", "D3")
