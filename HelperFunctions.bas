@@ -17,7 +17,16 @@ Function AddEntry(ByVal Dict As Dictionary, Key1 As String, Key2 As String, _
     Set AddEntry = Dict
 
 End Function
+Function RenameScoreSheets(wb As Workbook)
 
+    ' Renames the two worksheets representing the two data sets so that
+    ' they correspond to the first word of the directories where the associated
+    ' data is stored
+    
+    wb.Worksheets(1).name = "2nd"
+    wb.Worksheets(2).name = "Community"
+
+End Function
 Function CopyData(SrcRng As Range, DestRng As Range)
 
     ' `SrcRng` contains the data that will be copied over to `DestRng`
@@ -108,7 +117,8 @@ Function VerifyAndOverwrite(SrcRng As Range, DestRng As Range)
     
     If SrcRng.Value <> DestRng.Value Then
         
-        TargetRng.Value = SourceRng.Value
+        DestRng.Value = SrcRng.Value
+        DestRng.Interior.ColorIndex = 37
         
     End If
 
