@@ -20,6 +20,7 @@ Sub Driver()
     Dim templateFile        As String
     Dim suffix              As String
     Dim originalSheets()    As String
+    Dim correctName         As String
     Dim participantID       As String
     Dim dataSetID           As String
     Dim xlsFiles            As Collection
@@ -125,12 +126,18 @@ Sub Driver()
         dataSetID = Split(fso.GetBaseName(fso.GetParentFolderName(fso.GetParentFolderName(curFile))))(0)
         
         ' Check whether final calculated value has an error
-        ' Find row in tracker for participant;
-        ' HelperFunctions.FindParticipant(ws, ID)
+        ' Find row in tracker for participant
         Set scoreRow = HelperFunctions.FindParticipant(ScoreBook.Worksheets(dataSetID), participantID)
             
         For Each sheetName In CurrentBook.Worksheets
-        
+            
+            correctName = sheetName.name
+            
+            ' Make sure the updated sheets are used in lieu of original sheets
+            If InStr(1, Join(originalSheets, ","), correctName, vbTextCompare) Then
+                correctName = correctName & suffix
+            End If
+            
             ' Compare final calculated values against tracking file
             If Locations.Exists(sheetName.name) Then
             
@@ -140,9 +147,9 @@ Sub Driver()
                 
                     On Error Resume Next:
                     
-                    ' If different, overwrite;
+                    ' If different, overwrite
                     Call HelperFunctions.VerifyAndOverwrite( _
-                        CurrentBook.Worksheets(sheetName.name).Range( _
+                        CurrentBook.Worksheets(correctName).Range( _
                             Locations(sheetName.name)("UserVal")(i)), _
                         scoreRow.Cells(Locations(sheetName.name)("CompiledVal")(i)) _
                     )
@@ -164,7 +171,7 @@ Sub Driver()
                             .NumberFormat = "@"
                             .Value = participantID
                         End With
-                        .Cells(curLogRow, 2).Value = sheetName.name
+                        .Cells(curLogRow, 2).Value = correctName
                         .Cells(curLogRow, 3).Value = errorCount
                     End With
                     curLogRow = curLogRow + 1
@@ -175,9 +182,8 @@ Sub Driver()
         
         Next sheetName
             
-        ' Save & close data file
-        ' TODO: change SaveChanges:=True when done debugging
-        CurrentBook.Close SaveChanges:=False
+        ' Save & close participant file
+        CurrentBook.Close SaveChanges:=True
         
     Next curFile
     
