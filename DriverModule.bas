@@ -23,6 +23,7 @@ Sub Driver()
     Dim correctName         As String
     Dim participantID       As String
     Dim dataSetID           As String
+    Dim errorMsg            As String
     Dim xlsFiles            As Collection
     Dim templateSheets      As Collection
     Dim Locations           As New Dictionary
@@ -78,6 +79,7 @@ Sub Driver()
         .Cells(1, 1).Value = "Participant"
         .Cells(1, 2).Value = "Sheet Name"
         .Cells(1, 3).Value = "Number of Errors"
+        .Cells(1, 4).Value = "Error Message(s)"
     End With
     curLogRow = 2
     
@@ -97,10 +99,12 @@ Sub Driver()
     
     ' Loop over files
     For Each curFile In xlsFiles
-    
+        
+        Debug.Print curFile
+        
         ' Get & store participant ID;
         participantID = HelperFunctions.ExtractID(fso.GetFileName(curFile))
-            
+                
         ' Open workbook
         Set CurrentBook = Workbooks.Open(curFile)
         
@@ -123,7 +127,7 @@ Sub Driver()
         Next sheetName
         
         ' Figure out which dataset the participant belongs to (e.g., Community vs 2nd Time Point)
-        dataSetID = Split(fso.GetBaseName(fso.GetParentFolderName(fso.GetParentFolderName(curFile))))(0)
+        dataSetID = Split(fso.GetBaseName(fso.GetParentFolderName(curFile)))(0)
         
         ' Check whether final calculated value has an error
         ' Find row in tracker for participant
@@ -132,6 +136,7 @@ Sub Driver()
         For Each sheetName In CurrentBook.Worksheets
             
             correctName = sheetName.name
+            errorMsg = ""
             
             ' Make sure the updated sheets are used in lieu of original sheets
             If InStr(1, Join(originalSheets, ","), correctName, vbTextCompare) Then
@@ -157,6 +162,7 @@ Sub Driver()
                     If Err.Number <> 0 Then
                         
                         errorCount = errorCount + 1
+                        errorMsg = Join(Array(errorMsg, Err.Description), vbNewLine)
                         Err.Clear
                     
                     End If
@@ -173,6 +179,10 @@ Sub Driver()
                         End With
                         .Cells(curLogRow, 2).Value = correctName
                         .Cells(curLogRow, 3).Value = errorCount
+                        With .Cells(curLogRow, 4)
+                            .Value = errorMsg
+                            .WrapText = False
+                        End With
                     End With
                     curLogRow = curLogRow + 1
                     
@@ -184,6 +194,10 @@ Sub Driver()
             
         ' Save & close participant file
         CurrentBook.Close SaveChanges:=True
+        
+        ' Release resources & allow garbage collection
+        Set CurrentBook = Nothing
+        Set sheetName = Nothing
         
     Next curFile
     

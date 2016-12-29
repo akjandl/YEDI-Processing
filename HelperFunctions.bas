@@ -63,10 +63,10 @@ Function ExtractID(ByVal FileName As String) As String
     
     With Regex
         .IgnoreCase = True
-        .Pattern = "^d?t?c?\s?([\d]{1,4}).*$"
+        .Pattern = "^d?t?c?\s?([\d]{1,4}).*$|^.*dt?c?\s?([\d]{1,4})\.xls$"
         If .Test(FileName) Then
             Set Matches = .Execute(FileName)
-            participantID = Matches(0).SubMatches(0)
+            participantID = Application.Max(Matches(0).SubMatches(0), Matches(0).SubMatches(1))
         Else
             MsgBox FileName & " does not contain a Participant ID"
         End If
